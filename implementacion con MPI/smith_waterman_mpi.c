@@ -8,9 +8,9 @@
 #include <mpi.h>
 
 #define GAP_PENALTY -1
-#define TRANSITION_PENALTY -2
-#define TRANSVERSION_PENALTY -4
-#define MATCH 2
+#define TRANSITION_PENALTY -1
+#define TRANSVERSION_PENALTY -1
+#define MATCH 1
 
 //#define BLOCK_SIZE 1000
 
