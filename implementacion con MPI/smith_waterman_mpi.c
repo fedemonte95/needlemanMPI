@@ -241,12 +241,10 @@ int main ( int argc, char* argv[] ) {
   free(score);
   MPI_Finalize();
 
-  /*
   fprintf(stdout, "The computation took %f seconds\n",
     ((end.tv_sec - begin.tv_sec)*1000000+(end.tv_usec - begin.tv_usec))*1.0/1000000);
 	//fprintf(stdout, "score: %d\n", score[n_char_in_file_2][n_char_in_file_1]);
 	fprintf(stdout, "[%d] score: %d\n", rank, score[2*(n_char_in_file_1+1) - 1]);
-  */
   return 0;
 }
 
