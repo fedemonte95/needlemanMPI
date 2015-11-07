@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <vector>
 #include <math.h>
 using namespace std;
@@ -17,42 +16,52 @@ int similitud(int first, int second)
 	return first == second? 1 : -1;
 }
 
-vector<int> convertirStringToVector(string str)
+vector<char> convertirStringToVector(string str)
 {
-	vector<int> l;
+	vector<char> l;
 	for (int i = 0; i < str.size(); ++i)
 	{
-		int n = -1;
-		if (str[i] == 'A')
-			n = 0;
-		if (str[i] == 'G')
-			n = 1;
-		if (str[i] == 'C')
-			n = 2;
-		if (str[i] == 'T')
-			n = 3;
-		l.push_back(n);
+		l.push_back(str[i]);
 	}
 	return l;
 }
 
-void imprimir_matriz(int** M, int n, int m) {
-	for (int i = 0;i < n;++i) {
-		for (int j = 0;j < m;++j) {
-			cout << M[i][j] << '\t';
+void imprimir_matriz(int** M, vector<char> sec_1, vector<char> sec_2) {
+	int n = sec_1.size();
+	int m = sec_2.size();
+	
+	cout << '\t' << '\t';
+	for (int j = 0; j < m; j++) {
+		cout << sec_1[j] << '\t';
+	}
+	cout << endl << endl;	
+	for (int i = 0; i <= n; i++ ) {
+		if (i > 0){
+		cout << sec_2[i-1] << '\t';
+		} else {
+			cout << '\t';
+		}
+		for (int j = 0; j <= m; j++) {
+			cout << M[j][i] << '\t';
 		}
 		cout << endl << endl;
 	}
-
 }
 
 int main()
 {
-	ofstream file("resultado.txt");
+	string variable1; 
+	string variable2;
+	
+	cout << "Ingrese primer archivo: "; 
+	cin >> variable1;
+	cout << endl;
+	cout << "Ingrese segundo archivo: ";
+	cin >> variable2;
 
 	/// abrimos las secuencias
-	ifstream file1("secuencia1.txt");
-	ifstream file2("secuencia2.txt");
+	ifstream file1(variable1.c_str());
+	ifstream file2(variable2.c_str());
 	string buffer;
 	
 	string h1, h2;
@@ -81,76 +90,38 @@ int main()
 	for (int i = 1; i <= n; i++)
 		M[i][0] = -i;
 
-	vector<int> sec_1 = convertirStringToVector(h1);
-	vector<int> sec_2 = convertirStringToVector(h2);
+	vector<char> sec_1 = convertirStringToVector(h1);
+	vector<char> sec_2 = convertirStringToVector(h2);
 	/// generamos la matriz
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= m; j++) {
-			int match = M[i-1][j-1] + similitud(sec_1[i], sec_2[j]);
+			int match = M[i-1][j-1] + similitud(sec_1[i-1], sec_2[j-1]);
 			int insert = M[i-1][j] - 1;
 			int deletenw = M[i][j-1] - 1;
 			int max;
+			int values[] = {match, insert, deletenw};
+			// cout << 
+			// 	"[" << i << "]" <<
+			// 	"[" << j <<"] " << 
+			// 	" M" << match << 
+			// 	" I" << insert << 
+			// 	" D" << deletenw << 
+			// 	" [i-1][j-1]" << M[i-1][j-1] << endl;
 			/// escogemos al mayor y lo guardamos en max
-			if (match >= insert)
-				max = match;
-			else
-				max = insert;
-			
-			if (max >= deletenw)
-				max = max;
-			else
-				max = deletenw;
-
+			max = match;
+			for (int temp = 1; temp < 3; temp++){
+				if (values[temp] > max){
+					max = values[temp];
+				}
+			}
 			M[i][j] = max;
-			
+			cout << max << endl << endl;
 		}
 	}
 
-	imprimir_matriz(M, n + 1, m + 1);
+	imprimir_matriz(M, sec_1, sec_2);
+	cout << "El mejor Score es: " << M[n][m] << endl;
 
-	/// obtenemos las alineaciones
-
-	string alin_1 = ""; 
-	string alin_2 = "";
-	int i = n; int j = m;
-	while (i > 0 && j > 0) {
-		int score = M[i][j];
-		int diag = M[i-1][j-1];
-		int up = M[i][j-1];
-		int izq = M[i-1][j];
-		if (score == diag + similitud(sec_1[i - 1], sec_2[j - 1])) {
-			alin_1 = h1[i - 1] + alin_1;
-			alin_2 = h1[i - 1] + alin_2;
-			--i;--j;
-		}
-		else if (score == izq - 1) {
-			alin_1 = h1[i - 1] + alin_1;
-			alin_2 = "-" + alin_2;
-			--i;
-		}
-		else if (score == up - 1) {
-			alin_1 = "-" + alin_1;
-			alin_2 = h2[j - 1] + alin_2;
-			--j;
-		}
-	}
-	while (i > 0) {
-		alin_1 = h1[i - 1] + alin_1;
-		alin_2 = "-" + alin_2;
-		--i;
-	}
-
-	while (j > 0) {
-		alin_1 = "-" + alin_1;
-		alin_2 = h2[j - 1] + alin_2;
-		--j;
-	}
-
-	cout << "Alineacion 1: " << alin_1 << endl;
-	cout << "Alineacion 2: " << alin_2 << endl;
-
-	file << "Alineacion 1: " << alin_1 << endl;
-	file << "Alineacion 2: " << alin_2 << endl;
 
 	for (int i = 0; i <= n; ++i) {
 		delete M[i];
